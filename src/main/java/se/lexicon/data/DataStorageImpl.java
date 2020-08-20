@@ -5,6 +5,7 @@ import se.lexicon.model.Person;
 import se.lexicon.util.PersonGenerator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -26,7 +27,7 @@ public class DataStorageImpl implements DataStorage {
     private final List<Person> personList;
 
     private DataStorageImpl() {
-        personList = PersonGenerator.getInstance().generate(1000);
+        personList = PersonGenerator.getInstance().generate(500);
     }
 
     static DataStorage getInstance() {
@@ -61,7 +62,7 @@ public class DataStorageImpl implements DataStorage {
 
         for (Person person : personList) {
             if (filter.test(person)) {
-                return person.toString();
+                return personToString.apply(person);
             }
         }
         return null;
@@ -72,8 +73,7 @@ public class DataStorageImpl implements DataStorage {
         List<String> result = new ArrayList<>();
         for (Person person : personList) {
             if (filter.test(person)) {
-                result.add(person.toString().concat("\n"));
-                System.out.println(personToString.apply(person));
+                result.add(personToString.apply(person));
             }
         }
         return result;
@@ -84,7 +84,7 @@ public class DataStorageImpl implements DataStorage {
         for (Person person : personList) {
             if (filter.test(person)) {
                 consumer.accept(person);
-                System.out.println(person.toString());
+                // System.out.println(person.toString());
             }
         }
     }
@@ -92,11 +92,23 @@ public class DataStorageImpl implements DataStorage {
     @Override
     public List<Person> findAndSort(Comparator<Person> comparator) {
 
-        return null;
+        List<Person> result = personList;
+
+        Collections.sort(result, comparator);
+        return result;
     }
 
     @Override
     public List<Person> findAndSort(Predicate<Person> filter, Comparator<Person> comparator) {
-        return null;
+
+        List<Person> result = new ArrayList<>();
+        for (Person person : personList) {
+            if (filter.test(person)) {
+                result.add(person);
+            }
+        }
+        Collections.sort(result, comparator);
+        return result;
     }
 }
+

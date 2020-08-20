@@ -4,9 +4,7 @@ import java.util.Scanner;
 
 import static se.lexicon.Exercises.*;
 
-
-public class App 
-{
+public class App {
 
     private static final Scanner SCANNER;
 
@@ -67,7 +65,6 @@ public class App
                     break;
             }
 
-
         }while(!done);
         SCANNER.close();
     }
@@ -109,7 +106,6 @@ public class App
                 System.out.println("Try again");
             }
         }
-
         return number;
     }
 }

@@ -1,7 +1,5 @@
 package se.lexicon.util;
 
-
-
 import se.lexicon.model.Gender;
 import se.lexicon.model.Person;
 
@@ -9,7 +7,6 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class PersonGenerator {
 	
@@ -42,7 +39,7 @@ public class PersonGenerator {
 			
 			lastName = RandomNameService.getInstance().getRandomLastName();
 			
-			year = RandomNumberGenerator.getInstance().getRandomInt(1930, 2019);
+			year = RandomNumberGenerator.getInstance().getRandomInt(1926, 2019);
 
 			persons.add(new Person(firstName, lastName, generateBirthDate(year), gender));
 		}
@@ -60,6 +57,5 @@ public class PersonGenerator {
 		boolean isFemale = RandomNumberGenerator.getInstance().getRandomBoolean();		
 		return isFemale ? Gender.FEMALE : Gender.MALE;
 	}
-	
 
 }
