@@ -36,10 +36,18 @@ public class PersonGenerator {
 			}else {
 				firstName = RandomNameService.getInstance().getRandomMaleFirstName();
 			}
-			
+
+			if(RandomNumberGenerator.getInstance().getRandomInt(1,250)== 1) {
+				gender = Gender.NONBINARY;
+				firstName = "Åsa-Nisse";
+			} else if(RandomNumberGenerator.getInstance().getRandomInt(1,350)== 350) {
+				gender = Gender.NONBINARY;
+				firstName = "Lasse-Maja";
+			}
+
 			lastName = RandomNameService.getInstance().getRandomLastName();
 			
-			year = RandomNumberGenerator.getInstance().getRandomInt(1926, 2019);
+			year = RandomNumberGenerator.getInstance().getRandomInt(1940, 2019);
 
 			persons.add(new Person(firstName, lastName, generateBirthDate(year), gender));
 		}

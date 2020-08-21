@@ -27,27 +27,27 @@ public class DataStorageImpl implements DataStorage {
     private final List<Person> personList;
 
     private DataStorageImpl() {
-        personList = PersonGenerator.getInstance().generate(500);
+        personList = PersonGenerator.getInstance().generate(800);
     }
 
     static DataStorage getInstance() {
         return INSTANCE;
     }
 
-
     @Override
     public List<Person> findMany(Predicate<Person> filter) {
+
         List<Person> result = new ArrayList<>();
         for (Person person : personList) {
             if (filter.test(person)) {
                 result.add(person);
             }
         }
-        return result;
+        return result; // only the persons who passed the test
     }
 
     @Override
-    public Person findOne(Predicate<Person> filter) {
+    public Person findOne(Predicate<Person> filter) { // If we want a specific person
 
         for (Person person : personList) {
             if (filter.test(person)) {
@@ -60,31 +60,27 @@ public class DataStorageImpl implements DataStorage {
     @Override
     public String findOneAndMapToString(Predicate<Person> filter, Function<Person, String> personToString) {
 
-        for (Person person : personList) {
-            if (filter.test(person)) {
-                return personToString.apply(person);
-            }
-        }
-        return null;
+        return personToString.apply(findOne(filter)); // When we need a custom outprint or something
     }
 
     @Override
     public List<String> findManyAndMapEachToString(Predicate<Person> filter, Function<Person, String> personToString) {
-        List<String> result = new ArrayList<>();
+
+        List<String> selection = new ArrayList<>(); // Is it a better way to do this calling findMany?
         for (Person person : personList) {
             if (filter.test(person)) {
-                result.add(personToString.apply(person));
+                selection.add(personToString.apply(person));
             }
         }
-        return result;
+        return selection;
     }
 
     @Override
     public void findAndDo(Predicate<Person> filter, Consumer<Person> consumer) {
-        for (Person person : personList) {
+
+        for (Person person : findMany(filter)) {
             if (filter.test(person)) {
                 consumer.accept(person);
-                // System.out.println(person.toString());
             }
         }
     }
@@ -92,23 +88,16 @@ public class DataStorageImpl implements DataStorage {
     @Override
     public List<Person> findAndSort(Comparator<Person> comparator) {
 
-        List<Person> result = personList;
-
-        Collections.sort(result, comparator);
-        return result;
+        List<Person> selection = personList;
+        selection.sort(comparator); // This might be sorting both selection and personList?
+        return selection;
     }
 
     @Override
     public List<Person> findAndSort(Predicate<Person> filter, Comparator<Person> comparator) {
 
-        List<Person> result = new ArrayList<>();
-        for (Person person : personList) {
-            if (filter.test(person)) {
-                result.add(person);
-            }
-        }
-        Collections.sort(result, comparator);
-        return result;
+        List<Person> selection = findMany(filter);
+        selection.sort(comparator);
+        return selection;
     }
 }
-

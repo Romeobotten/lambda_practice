@@ -1,5 +1,7 @@
 package se.lexicon;
 
+import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
+import org.w3c.dom.ls.LSOutput;
 import se.lexicon.data.DataStorage;
 import se.lexicon.model.Gender;
 import se.lexicon.model.Person;
@@ -21,13 +23,8 @@ public class Exercises {
     */
     public static void exercise1(String message){
         System.out.println(message);
-        Predicate<Person> erik = e -> e.getFirstName().equalsIgnoreCase("Erik");
 
-        List<Person> eriks = storage.findMany(erik);
-
-        for(Person person: eriks) {
-            System.out.println(person.toString());
-        }
+        storage.findMany(e -> e.getFirstName().equalsIgnoreCase("Erik")).forEach(System.out::println);
 
         System.out.println("----------------------");
     }
@@ -37,12 +34,9 @@ public class Exercises {
      */
     public static void exercise2(String message){
         System.out.println(message);
-        Predicate<Person> boss = b -> b.getGender().equals(Gender.FEMALE);
-        List<Person> bosses = storage.findMany(boss);
 
-        for(Person person: bosses) {
-            System.out.println(person.toString());
-        }
+        storage.findMany(f -> f.getGender() == Gender.FEMALE).forEach(System.out::println); // only Predicate
+
         System.out.println("----------------------");
     }
 
@@ -52,12 +46,15 @@ public class Exercises {
     public static void exercise3(String message){
         System.out.println(message);
 
-        Predicate<Person> teens = t -> t.getBirthDate().isAfter(LocalDate.ofYearDay(1999,365));
-        List<Person> teenagers = storage.findMany(teens);
+//        Predicate<Person> teens = t -> t.getBirthDate().isAfter(LocalDate.ofYearDay(1999,365));
+//        List<Person> teenagers = storage.findMany(teens);
 
-        for(Person person: teenagers) {
-            System.out.println(person.toString());
-        }
+        // only Predicate
+        storage.findMany(t -> t.getBirthDate().isAfter(LocalDate.ofYearDay(1999,365))).forEach(System.out::println);
+
+//        for(Person person: teenagers) {
+//            System.out.println(person.toString());
+//        }
         System.out.println("----------------------");
     }
 
@@ -67,9 +64,10 @@ public class Exercises {
     public static void exercise4(String message){
         System.out.println(message);
 
-        Predicate<Person> oneTwoThree = o -> o.getId() == 123;
-        System.out.println(storage.findOne(oneTwoThree).toString());
+//        Predicate<Person> oneTwoThree = o -> o.getId() == 123;
+//        System.out.println(storage.findOne(oneTwoThree).toString());
 
+        System.out.println(storage.findOne(o -> o.getId() == 123)); // only Predicate
         System.out.println("----------------------");
     }
 
@@ -79,10 +77,10 @@ public class Exercises {
      */
     public static void exercise5(String message){
         System.out.println(message);
-        Predicate<Person> fourFiveSix = o -> o.getId() == 456;
-        Function<Person, String> printout = p -> "Name: ".concat(p.getFirstName() + " " + p.getLastName()).
-                concat(" born " + p.getBirthDate().toString() + "\n");
-        System.out.println(storage.findOneAndMapToString(fourFiveSix, printout));
+
+        // Predicate and Function
+        System.out.println(storage.findOneAndMapToString(o -> o.getId() == 456,
+                p -> "Name: ".concat(p.getFirstName() + " " + p.getLastName()).concat(" born " + p.getBirthDate())));
 
         System.out.println("----------------------");
     }
@@ -92,13 +90,17 @@ public class Exercises {
      */
     public static void exercise6(String message){
         System.out.println(message);
-        Predicate<Person> eMale = e -> e.getFirstName().startsWith("E") && e.getGender().equals(Gender.MALE);
-        Function<Person, String> printout = p -> p.toString();
-        List<String> eMen = storage.findManyAndMapEachToString(eMale, printout);
+//        Predicate<Person> eMale = ;
+//        Function<Person, String> printout = ;
+//        List<String> eMen = storage.findManyAndMapEachToString(eMale, printout);
 
-        for(String manString: eMen) {
-            System.out.println(manString);
-        }
+        // Predicate and Function
+        storage.findManyAndMapEachToString(e -> e.getFirstName().startsWith("E") && e.getGender().equals(Gender.MALE),
+                p -> p.toString()).forEach(System.out::println);
+
+//        for(String manString: eMen) {
+//            System.out.println(manString);
+//        }
         System.out.println("----------------------");
     }
 
@@ -108,15 +110,13 @@ public class Exercises {
      */
     public static void exercise7(String message){
         System.out.println(message);
-        Predicate<Person> kids = k -> k.getBirthDate().isAfter(LocalDate.now().minusYears(10));
-        Function<Person, String> printout = p -> p.getFirstName().concat(" " + p.getLastName() + " " +
-                (LocalDate.now().compareTo(p.getBirthDate())) + " years " + p.getBirthDate().toString());
 
-        List<String> kidsPrintout = storage.findManyAndMapEachToString(kids, printout);
+        // Predicate and Function, a little too complicated function to get the year output right
+        storage.findManyAndMapEachToString(k -> k.getBirthDate().isAfter(LocalDate.now().minusYears(10)),
+                p -> p.getFirstName().concat(" " + p.getLastName() + " " +
+                 (LocalDate.now().compareTo(p.getBirthDate())+(Math.max(-1,Math.min(0,LocalDate.now().getDayOfYear()-p.getBirthDate().getDayOfYear())))) +
+                        " years  - born " + p.getBirthDate())).forEach(System.out::println);
 
-        for(String kidString: kidsPrintout) {
-            System.out.println(kidString);
-        }
         System.out.println("----------------------");
     }
 
@@ -126,11 +126,10 @@ public class Exercises {
     public static void exercise8(String message){
         System.out.println(message);
 
-        Predicate<Person> nameUffe = p -> p.getFirstName().equals("Ulf"); // Lambda, sending condition
-        Consumer<Person> accept = a -> System.out.println(a.toString());
         // What is the use of consumer here? Do we want to adjust the printout?
 
-        storage.findAndDo(nameUffe,accept);
+        storage.findAndDo(p -> p.getFirstName().equals("Ulf"),a -> System.out.println(a)); // Predicate and Consumer
+
         System.out.println("----------------------");
     }
 
@@ -139,11 +138,15 @@ public class Exercises {
      */
     public static void exercise9(String message){
         System.out.println(message);
-        Predicate<Person> sameName = p -> p.getLastName().toLowerCase().contains(p.getFirstName().toLowerCase());
-        Consumer<Person> accept = a -> System.out.println(a.toString());
-        // What is the use of consumer here?
+//        Old code:
+//        Predicate<Person> sameName = p -> p.getLastName().toLowerCase().contains(p.getFirstName().toLowerCase());
+//        Consumer<Person> accept = a -> System.out.println(a.toString());
 
-        storage.findAndDo(sameName,accept);
+        // What is the use of consumer here? Do we want to adjust the printout?
+
+        storage.findAndDo(p -> p.getLastName().toLowerCase().contains(p.getFirstName().toLowerCase()), // Predicate
+                a -> System.out.println(a));  // Consumer
+
         System.out.println("----------------------");
     }
 
@@ -152,15 +155,14 @@ public class Exercises {
      */
     public static void exercise10(String message){
         System.out.println(message);
-        Predicate<Person> palindrome = p -> {
-            for (int i = 0; i < p.getFirstName().length(); i++) { // Checking if name is a Palindrome
-                if(p.getFirstName().toLowerCase().charAt(i) !=  // Not a palindrome
+
+        // this loop is checking if firstname is a palindrome, I am checking it twice like SantaClaus :-D
+        storage.findAndDo(p -> {
+            for (int i = 0; i < p.getFirstName().length(); i++) {
+                if(p.getFirstName().toLowerCase().charAt(i) !=
                         p.getFirstName().toLowerCase().charAt(p.getFirstName().length() - 1 - i)) return false;
-            } // I am checking it twice like SantaClaus :-D
-            return true;
-        };
-        Consumer<Person> printout = a -> System.out.println(a.getFirstName().concat(" " + a.getLastName()));
-        storage.findAndDo(palindrome,printout);
+            } return true;
+        },a -> System.out.println(a.getFirstName().concat(" " + a.getLastName()))); // Predicate and Consumer
 
         System.out.println("----------------------");
     }
@@ -170,14 +172,17 @@ public class Exercises {
      */
     public static void exercise11(String message){
         System.out.println(message);
-        Predicate<Person> aPerson = a -> a.getFirstName().startsWith("A");
+//        Old code:
+//        Predicate<Person> aPerson = a -> a.getFirstName().startsWith("A");
+//        Comparator<Person> compareDate = Comparator.comparing(p -> p.getBirthDate());
 
-        Comparator<Person> compareDate = Comparator.comparing(p -> p.getBirthDate());
+        storage.findAndSort(a -> a.getFirstName().startsWith("A"),  // Predicate
+                Comparator.comparing(p -> p.getBirthDate())).forEach(System.out::println);  // Comparator
 
-        List<Person> aNamesAge = storage.findAndSort(aPerson, compareDate);
-        for(Person person: aNamesAge) {
-            System.out.println(person.toString());
-        }
+//        List<Person> aNamesAge = storage.findAndSort(aPerson, compareDate);
+//        for(Person person: aNamesAge) {
+//            System.out.println(person.toString());
+//        }
         System.out.println("----------------------");
     }
 
@@ -186,14 +191,17 @@ public class Exercises {
      */
     public static void exercise12(String message){
         System.out.println(message);
+//        Old code:
+//        Predicate<Person> oldPerson = o -> o.getBirthDate().isBefore(LocalDate.ofYearDay(1950,1));
+//        Comparator<Person> compareDate = Comparator.comparing(p -> p.getBirthDate());
+//        List<Person> aNamesAge = storage.findAndSort(oldPerson, compareDate.reversed());
 
-        Predicate<Person> oldPerson = o -> o.getBirthDate().isBefore(LocalDate.ofYearDay(1950,1));
-        Comparator<Person> compareDate = Comparator.comparing(p -> p.getBirthDate());
-        List<Person> aNamesAge = storage.findAndSort(oldPerson, compareDate.reversed());
-
-        for(Person person: aNamesAge) {
-            System.out.println(person.toString());
-        }
+        storage.findAndSort(o -> o.getBirthDate().isBefore(LocalDate.ofYearDay(1950,1)), // Predicate
+                Comparator.comparing(Person::getBirthDate).reversed()).forEach(System.out::println); // Comparator
+//        Old code:
+//        for(Person person: aNamesAge) {
+//            System.out.println(person.toString());
+//        }
         System.out.println("----------------------");
     }
 
@@ -202,14 +210,59 @@ public class Exercises {
      */
     public static void exercise13(String message){
         System.out.println(message);
+//        Old code:
+//        Comparator<Person> compareAll = Comparator.comparing(Person :: getLastName).thenComparing
+//                (Person :: getFirstName).thenComparing(Person :: getBirthDate);
+//        List<Person> sortedList = storage.findAndSort(compareAll);
 
-        Comparator<Person> compareAll = Comparator.comparing(Person :: getLastName).thenComparing
-                (Person :: getFirstName).thenComparing(Person :: getBirthDate);
-        List<Person> sortedList = storage.findAndSort(compareAll);
+        storage.findAndSort(Comparator.comparing(Person :: getLastName).thenComparing  // only Comparator
+                (Person :: getFirstName).thenComparing(Person :: getBirthDate)).forEach(System.out::println);
 
-        for(Person person: sortedList) {
-            System.out.println(person.toString());
-        }
         System.out.println("----------------------");
     }
+
+    /*
+    14.	Using findAndSort() find everyone who has retired (65 years) and sort by youngest first.
+ */
+    public static void exercise14(String message){
+        System.out.println(message);
+//        Old code:
+//        Comparator<Person> compareAll = Comparator.comparing(Person :: getLastName).thenComparing
+//                (Person :: getFirstName).thenComparing(Person :: getBirthDate);
+//        List<Person> sortedList = storage.findAndSort(compareAll);
+
+        storage.findAndSort(o -> o.getBirthDate().isBefore(LocalDate.now().minusYears(65)), // Predicate
+                Comparator.comparing(Person::getBirthDate).reversed()).forEach(System.out::println); // Comparator
+
+        System.out.println("----------------------");
+    }
+
+    /*
+    15.	Find all people who has birthday today and convert them to a String like this:
+        “Happy birthday Olle Svensson 29 years today!”. Use findManyAndMapEachToString() method.
+ */
+    public static void exercise15(String message){
+        System.out.println(message);
+
+        storage.findManyAndMapEachToString(k -> k.getBirthDate().getDayOfMonth() == LocalDate.now().getDayOfMonth() &&
+                k.getBirthDate().getMonth().equals(LocalDate.now().getMonth()),
+                p -> "Happy birthday " + p.getFirstName().concat(" " + p.getLastName() + " " +
+                        (LocalDate.now().compareTo(p.getBirthDate())+
+                                (Math.max(-1,Math.min(0,LocalDate.now().getDayOfYear()-p.getBirthDate().getDayOfYear())))) +
+                        " years today!  - born " + p.getBirthDate())).forEach(System.out::println);
+
+        System.out.println("----------------------");
+    }
+
+    /*
+        16.	Find all persons who are neither male or female in the collection using findMany().
+     */
+    public static void exercise16(String message){
+        System.out.println(message);
+
+        storage.findMany(f -> f.getGender() == Gender.NONBINARY).forEach(System.out::println); // only Predicate
+
+        System.out.println("----------------------");
+    }
+
 }

@@ -18,7 +18,7 @@ public class App {
         String message = "Running exercise...";
         do{
             System.out.println(menu());
-            System.out.print("Choose from 1-13: ");
+            System.out.print("Choose from 1-16: ");
             int number = getInt();
             switch (number){
                 case 0:
@@ -63,6 +63,15 @@ public class App {
                 case 13:
                     exercise13(message + number);
                     break;
+                case 14:
+                    exercise14(message + number);
+                    break;
+                case 15:
+                    exercise15(message + number);
+                    break;
+                case 16:
+                    exercise16(message + number);
+                    break;
             }
 
         }while(!done);
@@ -89,6 +98,10 @@ public class App {
         stringBuilder.append("11.\tUsing findAndSort() find everyone whose firstName starts with A sorted by birthDate.\n");
         stringBuilder.append("12.\tUsing findAndSort() find everyone born before 1950 sorted reversed by lastest to earliest.\n");
         stringBuilder.append("13.\tUsing findAndSort() find everyone sorted in following order: lastName > firstName > birthDate.\n");
+        stringBuilder.append("14.\tUsing findAndSort() find everyone who has retired (65 years) and sort by youngest first.\n");
+        stringBuilder.append("15.\tFind all people who has birthday today and convert them to a String like this:\n" +
+                "            ”Happy birthday Olle Svensson 29 years today!”. Use findManyAndMapEachToString() method.\n");
+        stringBuilder.append("16.\tFind all persons who are neither male or female in the collection using findMany().\n");
         return stringBuilder.toString();
     }
 
@@ -98,7 +111,7 @@ public class App {
         while(!validNumber){
             try{
                 number = Integer.parseInt(SCANNER.nextLine().trim());
-                validNumber = number >= 0 && number < 14;
+                validNumber = number >= 0 && number < 17;
             }catch (NumberFormatException ex){
                 System.out.println("Not a integer");
             }
